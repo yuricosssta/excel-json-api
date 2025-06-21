@@ -1,3 +1,4 @@
+//src/routes/upload.ts
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import * as XLSX from 'xlsx';
@@ -10,7 +11,8 @@ const upload = multer({ storage: storage });
 
 router.post('/upload', upload.single('file'), async (req: Request, res: Response) => {
   if (!req.file) {
-    return res.status(400).json({ error: 'Nenhum arquivo foi enviado.' });
+    res.status(400).json({ error: 'Nenhum arquivo foi enviado.' });
+    return;
   }
 
   const allowedMimeTypes = [
@@ -18,14 +20,16 @@ router.post('/upload', upload.single('file'), async (req: Request, res: Response
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   ];
   if (!allowedMimeTypes.includes(req.file.mimetype)) {
-      return res.status(400).json({ error: 'Formato de arquivo inválido. Apenas .xls ou .xlsx.' });
+    res.status(400).json({ error: 'Formato de arquivo inválido. Apenas .xls ou .xlsx.' });
+    return;
   }
 
   try {
     const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     if (!sheetName) {
-        return res.status(400).json({ error: 'Planilha vazia ou corrompida.'});
+      res.status(400).json({ error: 'Planilha vazia ou corrompida.' });
+      return;
     }
 
     const worksheet = workbook.Sheets[sheetName];
@@ -45,19 +49,16 @@ router.post('/upload', upload.single('file'), async (req: Request, res: Response
     }));
 
     if (jsonData.length === 0) {
-        return res.status(400).json({ error: 'Nenhum dado encontrado na planilha.' });
+      res.status(400).json({ error: 'Nenhum dado encontrado na planilha.' });
+      return;
     }
 
-    // --- LÓGICA DO MONGOOSE ---
-    // Usa o método insertMany para salvar todos os objetos do array jsonData de uma só vez.
-    // Isso é muito mais eficiente do que salvar um por um em um loop.
     const result = await dadosGenericos.insertMany(jsonData);
-    
-    // Envia uma resposta de sucesso com a contagem de documentos inseridos.
+
     res.status(201).json({ 
-        message: 'Dados importados e salvos com sucesso!',
-        count: result.length,
-        data: result // Opcional: retornar os dados salvos
+      message: 'Dados importados e salvos com sucesso!',
+      count: result.length,
+      data: result // Opcional: retornar os dados salvos
     });
 
   } catch (error) {
@@ -73,28 +74,24 @@ router.post('/upload', upload.single('file'), async (req: Request, res: Response
  */
 router.get('/data', async (req: Request, res: Response) => {
     try {
-        // Constrói um objeto de filtro a partir dos query parameters da requisição
         const filter: { [key: string]: any } = {};
         
         for (const key in req.query) {
             if (Object.prototype.hasOwnProperty.call(req.query, key)) {
                 const value = req.query[key] as string;
-                
-                // Trata valores numéricos
                 if (!isNaN(parseFloat(value)) && isFinite(Number(value))) {
                     filter[key] = Number(value);
                 } else {
-                    // Para strings, usa uma regex para busca case-insensitive
                     filter[key] = { $regex: new RegExp(`^${value}$`, 'i') };
                 }
             }
         }
 
-        // Usa o objeto de filtro para buscar os dados no banco
         const data = await dadosGenericos.find(filter);
 
         if (data.length === 0) {
-            return res.status(404).json({ message: 'Nenhum dado encontrado com os filtros fornecidos.' });
+            res.status(404).json({ message: 'Nenhum dado encontrado com os filtros fornecidos.' });
+            return;
         }
 
         res.status(200).json(data);

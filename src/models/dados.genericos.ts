@@ -1,10 +1,11 @@
+//src/models/dados.genericos.ts
 import mongoose, { Schema, Document } from 'mongoose';
 
 // Define uma interface que representa um documento no MongoDB.
 // Como os dados do Excel podem ter quaisquer colunas, usamos um índice de assinatura.
 export interface IDadosGenericos extends Document {
   [key: string]: any;
-}
+} 
 
 // Cria um Schema do Mongoose.
 // O objeto vazio {} com a opção strict: false permite que qualquer dado seja salvo.
@@ -13,4 +14,4 @@ const DadosGenericosSchema: Schema = new Schema({}, { strict: false, timestamps:
 
 // Cria e exporta o Model do Mongoose.
 // O Mongoose criará uma coleção chamada 'dataentries' (plural e minúsculo) no banco de dados.
-export default mongoose.model<IDadosGenericos>('DadosGenericos', DadosGenericosSchema);
+export default mongoose.model<IDadosGenericos>('dadosGenericos', DadosGenericosSchema);
