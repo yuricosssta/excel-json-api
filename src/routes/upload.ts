@@ -29,7 +29,20 @@ router.post('/upload', upload.single('file'), async (req: Request, res: Response
     }
 
     const worksheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    let jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+    // Mapeamento manual (caso as chaves estejam erradas)
+    jsonData = jsonData.map((item: any) => ({
+      grupo: item.grupo || item.Grupo || item['GRUPO'] || '',
+      composicao: item.codigo_composicao || item['COMPOSICAO'] || item['codigo_composicao'] || '',
+      tipo: item.tipo || item['TIPO'] || item['tipo'] || '',
+      insumo: item.codigo_item || item['INSUMO'] || item['codigo_item'] || '',      
+      descricao: item.descricao || item.Descrição || item['DESCRICAO'] || '',
+      unidade: item.unidade || item.Unidade || item['UNIDADE'] || '',
+      coeficiente: item.coeficiente || item.Coeficiente || item['COEFICIENTE'] || '',
+      custo: item.situacao || item.Situação || item['CUSTO'] || '',
+      
+    }));
 
     if (jsonData.length === 0) {
         return res.status(400).json({ error: 'Nenhum dado encontrado na planilha.' });

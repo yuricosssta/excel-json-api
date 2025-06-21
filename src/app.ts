@@ -1,8 +1,10 @@
 // Importações dos módulos necessários
 import express, { Application, Request, Response } from 'express';
 import dotenv from 'dotenv';
-import connectDB from './config/dataBase'; // Importa a função de conexão
+import connectDB from './config/dataBase';
 import uploadRoutes from './routes/upload';
+import cors from 'cors';
+
 
 // Carrega as variáveis de ambiente do arquivo .env
 dotenv.config(); 
@@ -15,6 +17,7 @@ const app: Application = express();
 const port: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 // Middlewares
+app.use(cors());
 app.use(express.json());
 
 // Rota principal para verificar se a API está online
@@ -27,5 +30,5 @@ app.use('/api', uploadRoutes);
 
 // Inicia o servidor
 app.listen(port, () => {
-  console.log(`🚀 Servidor rodando em http://localhost:${port}`);
+  console.log(`Servidor rodando em http://localhost:${port}`);
 });
