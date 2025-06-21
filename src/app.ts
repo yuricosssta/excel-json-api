@@ -1,17 +1,31 @@
+// Importações dos módulos necessários
 import express, { Application, Request, Response } from 'express';
+import dotenv from 'dotenv';
+import connectDB from './config/dataBase'; // Importa a função de conexão
 import uploadRoutes from './routes/upload';
 
-const app: Application = express();
-const port: number = 3000;
+// Carrega as variáveis de ambiente do arquivo .env
+dotenv.config(); 
 
+// Conecta ao banco de dados MongoDB
+connectDB();
+
+// Inicializa a aplicação Express
+const app: Application = express();
+const port: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+
+// Middlewares
 app.use(express.json());
 
+// Rota principal para verificar se a API está online
 app.get('/', (req: Request, res: Response) => {
-  res.send('API para conversão de Excel para JSON está no ar!');
+  res.status(200).send('Servidor no ar! Conectado ao MongoDB.');
 });
 
+// Usa as rotas definidas no arquivo de upload
 app.use('/api', uploadRoutes);
 
+// Inicia o servidor
 app.listen(port, () => {
-  console.log(`Servidor rodando na porta ${port}`);
+  console.log(`🚀 Servidor rodando em http://localhost:${port}`);
 });
