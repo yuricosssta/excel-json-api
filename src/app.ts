@@ -1,5 +1,5 @@
 import express, { Application, Request, Response } from 'express';
-import uploadRoutes from '../routes/upload';
+import uploadRoutes from './routes/upload';
 
 const app: Application = express();
 const port: number = 3000;
