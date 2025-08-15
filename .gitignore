@@ -137,3 +137,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 .vercel
+
+# Ignorar configurações locais da Vercel
+vercel.json
