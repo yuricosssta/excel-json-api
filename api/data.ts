@@ -131,12 +131,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const searchTerm = req.query.q as string;
     if (searchTerm) {
       const regex = { $regex: searchTerm, $options: 'i' };
+      const num = Number(searchTerm);
+
       filter.$or = [
         { grupo: regex },
         { descricao: regex },
         { composicao: regex },
-        { insumo: regex },
-        { unidade: regex }
+        // { insumo: regex },
+        ...(isNaN(num) ? [] : [{ composicao: num }])
       ];
     } else {
       Object.entries(req.query).forEach(([key, value]) => {
